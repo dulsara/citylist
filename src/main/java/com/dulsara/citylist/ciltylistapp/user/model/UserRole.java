@@ -12,7 +12,8 @@ import java.io.Serializable;
 @Entity
 @Table(name = "user_role")
 @Data
-public class UserRole implements Serializable {
+@IdClass(UserRoleId.class)
+public class UserRole {
 
     @Id
     private Long user_id;

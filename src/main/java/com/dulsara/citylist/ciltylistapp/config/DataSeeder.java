@@ -8,6 +8,7 @@ import com.dulsara.citylist.ciltylistapp.user.model.UserRole;
 import com.dulsara.citylist.ciltylistapp.user.repository.RoleRepository;
 import com.dulsara.citylist.ciltylistapp.user.repository.UserRepository;
 //import com.dulsara.citylist.ciltylistapp.user.repository.UserRoleRepository;
+import com.dulsara.citylist.ciltylistapp.user.repository.UserRoleRepository;
 import com.dulsara.citylist.ciltylistapp.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
@@ -36,7 +37,7 @@ public class DataSeeder implements ApplicationRunner {
 
     private final UserService userService;
     private final CityRepository cityRepository;
-//    private final UserRoleRepository userRoleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
 
 
@@ -46,13 +47,20 @@ public class DataSeeder implements ApplicationRunner {
         var manu = new User(2L, "manu","manu123");
         userService.save(dul);
         userService.save(manu);
-        var role = new Role(1L, "ROLE_ALLOW_EDIT");
+        var role = new Role(3L, "ROLE_ALLOW_EDIT");
+        var role2 = new Role(4L, "ROLE_ALLOW_CUSTOMER");
 
-//        var userRole = new UserRole(1L, 1L);
+
+        var userRole = new UserRole(1L, 3L);
+        var userRole2 = new UserRole(2L, 4L);
+
         userService.save(dul);
         userService.save(manu);
         roleRepository.save(role);
-//        userRoleRepository.save(userRole);
+        roleRepository.save(role2);
+        userRoleRepository.save(userRole);
+        userRoleRepository.save(userRole2);
+
 
         List<City> books = new ArrayList<>();
         try {

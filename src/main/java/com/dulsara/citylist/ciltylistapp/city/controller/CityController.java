@@ -34,10 +34,8 @@ public class CityController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> findAllByCity(@RequestParam(required = false) String name, @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "3") int size) {
-
-        Map<String, Object> response = cityService.findAllWithName(name,page,size);
+    public ResponseEntity<Map<String, Object>> findAllByCity(@RequestParam(required = false) String name, Pageable pageable) {
+        Map<String, Object> response = cityService.findAllWithName(name,pageable);
         return  ResponseEntity.ok().body(response);
     }
 

@@ -25,16 +25,8 @@ public class CityService {
         City validatedCity = validateCity(city,GlobalConstant.UPDATE);
         return cityRepository.save(validatedCity);
     }
-    public Page<City> findAll(Pageable pageable) {
-        return cityRepository.findAll(pageable);
-    }
 
-    public Page<City> findAll(String name, Pageable pageable) {
-        return cityRepository.findAll(pageable);
-    }
-
-    public Map<String,Object> findAllWithName(String name, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Map<String,Object> findAllWithName(String name, Pageable pageable) {
         Page<City> pageTuts;
         pageTuts = cityRepository.findAllWithName(name, pageable);
 
@@ -43,12 +35,11 @@ public class CityService {
         cities = pageTuts.getContent();
         Map<String, Object> response = new HashMap<>();
         response.put("cities", cities);
-        response.put("currentPage", pageTuts.getNumber());
-        response.put("totalItems", pageTuts.getTotalElements());
+//        response.put("currentPage", pageTuts.getNumber());
+//        response.put("totalItems", pageTuts.getTotalElements());
         response.put("totalPages", pageTuts.getTotalPages());
         return response;
     }
-
     public Optional <City> findById(Long id) {
         return cityRepository.findById(id);
     }
@@ -72,11 +63,8 @@ public class CityService {
         if ((city.getId() == null || city.getId() < 1) && GlobalConstant.UPDATE.equals(updateMode)){
             throw new Exception("City Id is Mandatory or greater than 0");
         }
-        if (Pattern.matches(GlobalConstant.urlRegex, city.getImageURL())){
+        if (!Pattern.matches(GlobalConstant.urlRegex, city.getImageURL())){
             throw new Exception("City Image URL is not in standard Pattern");
-        }
-        if (Pattern.matches(GlobalConstant.cityNameRegex, city.getName())){
-            throw new Exception("City Name is not in standard Pattern");
         }
         if ((city.getId() == null || city.getId() < 1) && GlobalConstant.UPDATE.equals(updateMode)){
             throw new Exception("City Id is Mandatory or greater than 0");
