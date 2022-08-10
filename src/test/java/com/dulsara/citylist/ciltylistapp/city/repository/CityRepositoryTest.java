@@ -74,7 +74,7 @@ class CityRepositoryTest {
         Assertions.assertEquals(true,cityPage1.getContent().contains(cityResponse) || cityPage1.getContent().contains(cityResponse1)||cityPage1.getContent().contains(cityResponse2) ,"check given city is available in the paging result");
 
         Pageable pageable2 =  PageRequest.of(0, 2);
-        Page<City> cityPage2 = cityRepository.findAllWithName(cityName1,pageable2);
+        Page<City> cityPage2 = cityRepository.findAllWithName(cityName1.toLowerCase(),pageable2);
         Assertions.assertNotNull(cityPage2.getContent());
         Assertions.assertEquals(1,cityPage2.getContent().size()," check the size of return page");
         Assertions.assertEquals(true,cityPage2.getContent().contains(cityResponse1) ,"check given city is available in the paging result");
@@ -88,12 +88,15 @@ class CityRepositoryTest {
         String imageURL = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/IN-DL.svg/439px-IN-DL.svg.png";
         city.setName(cityName);
         city.setImageURL(imageURL);
-        city.setId(100L);
-
+        city.setId(1L);
         cityRepository.save(city);
-        Optional<City> cityOptional = cityRepository.findCityByNameExcludingId(cityName,10L);
+
+        // when passing id=1, nothing should pop up
+        Optional<City> cityOptional = cityRepository.findCityByNameExcludingId(cityName,1L);
+
         Assertions.assertEquals(false,cityOptional.isPresent());
 
+        // given unavailable id and check the result is coming
         Optional<City> cityOptional1 = cityRepository.findCityByNameExcludingId(cityName,1000L);
 
         Assertions.assertNotNull(cityOptional1.get());

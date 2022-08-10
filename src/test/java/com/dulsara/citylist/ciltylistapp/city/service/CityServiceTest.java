@@ -122,8 +122,8 @@ class CityServiceTest {
         city.setName("TestCity2");
         city.setImageURL("https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/IN-DL.svg/439px-IN-DL.svg.png");
         Pageable pageable =  PageRequest.of(0, 2);
-        Mockito.when(cityRepository.findAllWithName("TestCity2",pageable)).thenReturn(new PageImpl<City>(Arrays.asList(city), pageable,  1L));
-        Map<String,Object> map = cityService.findAllWithName("TestCity2",pageable);
+        Mockito.when(cityRepository.findAllWithName("TestCity2".toLowerCase(),pageable)).thenReturn(new PageImpl<City>(Arrays.asList(city), pageable,  1L));
+        Map<String,Object> map = cityService.findAllWithName("TestCity2".toLowerCase(),pageable);
 
         Assertions.assertNotNull(map);
         List<City> cities = (List<City>) map.get("cities");
