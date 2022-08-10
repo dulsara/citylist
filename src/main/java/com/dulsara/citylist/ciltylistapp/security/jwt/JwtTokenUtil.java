@@ -1,10 +1,10 @@
-package com.dulsara.citylist.ciltylistapp.jwt;
+package com.dulsara.citylist.ciltylistapp.security.jwt;
 
 import com.dulsara.citylist.ciltylistapp.user.model.User;
+import com.dulsara.citylist.ciltylistapp.util.GlobalConstant;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -23,6 +23,7 @@ public class JwtTokenUtil {
 		return Jwts.builder()
 				.setSubject(String.format("%s,%s", user.getId(), user.getUsername()))
 				.setIssuer("CodeDula")
+				.claim("auth", user.getAuthorities())
 				.claim("roles", user.getRoles().toString())
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
@@ -30,23 +31,31 @@ public class JwtTokenUtil {
 				.compact();
 	}
 	
-	public boolean validateAccessToken(String token) {
+	public boolean validateAccessToken(String token) throws Exception {
 		try {
 			Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
 			return true;
 		} catch (ExpiredJwtException ex) {
 			LOGGER.error("JWT expired", ex.getMessage());
+			throw new Exception(GlobalConstant.JWTErrors.JWT_EXPIRED_ERROR);
+
 		} catch (IllegalArgumentException ex) {
 			LOGGER.error("Token is null, empty or only whitespace", ex.getMessage());
+			throw new Exception(GlobalConstant.JWTErrors.JWT_TOKEN_EMPTY_ERROR);
+
 		} catch (MalformedJwtException ex) {
 			LOGGER.error("JWT is invalid", ex);
+			throw new Exception(GlobalConstant.JWTErrors.JWT_TOKEN_INVALID_ERROR);
+
 		} catch (UnsupportedJwtException ex) {
 			LOGGER.error("JWT is not supported", ex);
+			throw new Exception(GlobalConstant.JWTErrors.JWT_TOKEN_NOT_SUPPORTED_ERROR);
+
 		} catch (SignatureException ex) {
 			LOGGER.error("Signature validation failed");
+			throw new Exception(GlobalConstant.JWTErrors.JWT_SIGNATURE_ERROR);
+
 		}
-		
-		return false;
 	}
 	
 	public String getSubject(String token) {

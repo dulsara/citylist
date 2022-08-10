@@ -1,12 +1,10 @@
 package com.dulsara.citylist.ciltylistapp.city.service;
 
-import com.dulsara.citylist.ciltylistapp.exception.ResourceNotFoundException;
 import com.dulsara.citylist.ciltylistapp.city.model.City;
 import com.dulsara.citylist.ciltylistapp.city.repository.CityRepository;
 import com.dulsara.citylist.ciltylistapp.util.GlobalConstant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +26,13 @@ public class CityService {
 
     public Map<String,Object> findAllWithName(String name, Pageable pageable) {
         Page<City> pageTuts;
-        pageTuts = cityRepository.findAllWithName(name, pageable);
+        pageTuts = cityRepository.findAllWithName(name==null?null:name.toLowerCase(), pageable);
 
         List<City> cities = new ArrayList<City>();
 
         cities = pageTuts.getContent();
         Map<String, Object> response = new HashMap<>();
         response.put("cities", cities);
-//        response.put("currentPage", pageTuts.getNumber());
-//        response.put("totalItems", pageTuts.getTotalElements());
         response.put("totalPages", pageTuts.getTotalPages());
         return response;
     }
@@ -44,39 +40,29 @@ public class CityService {
         return cityRepository.findById(id);
     }
 
-    public Optional<City> findByCityName(String name) {
-        return cityRepository.findCityByName(name);
-    }
-
-    public Optional<City> findByCityId(Long id) {
-        return cityRepository.findById(id);
-    }
-
     private City validateCity(City city, String updateMode) throws Exception {
         City validatedCity = null;
         if (city.getName() == null || city.getName().isEmpty()) {
-            throw new Exception("City Name is Mandatory");
+            throw new Exception(GlobalConstant.CityErrors.CITY_NAME_MANDATORY_ERROR);
         }
         if (city.getImageURL() == null || city.getImageURL().isEmpty()) {
-            throw new Exception("City Image URL  is Mandatory");
-        }
-        if ((city.getId() == null || city.getId() < 1) && GlobalConstant.UPDATE.equals(updateMode)){
-            throw new Exception("City Id is Mandatory or greater than 0");
+            throw new Exception(GlobalConstant.CityErrors.IMAGE_URL_MANDATORY_ERROR);
         }
         if (!Pattern.matches(GlobalConstant.urlRegex, city.getImageURL())){
-            throw new Exception("City Image URL is not in standard Pattern");
+            throw new Exception(GlobalConstant.CityErrors.IMAGE_URL_STANDARD_ERROR);
         }
         if ((city.getId() == null || city.getId() < 1) && GlobalConstant.UPDATE.equals(updateMode)){
-            throw new Exception("City Id is Mandatory or greater than 0");
+            throw new Exception(GlobalConstant.CityErrors.CITY_ID_MANDATORY_ERROR);
         }
-        Optional<City> existingCityOptional = cityRepository.findCityByName(city.getName());
+        long cityId = city.getId()==null?0L:city.getId();
+        Optional<City> existingCityOptional = cityRepository.findCityByNameExcludingId(city.getName(),cityId);
         if (existingCityOptional.isPresent() ) {
-            throw new Exception("Given City Name is already existing");
+            throw new Exception(GlobalConstant.CityErrors.CITY_NAME_EXISTING_ERROR);
         }
         if (GlobalConstant.UPDATE.equals(updateMode)) {
             validatedCity = cityRepository.getById(city.getId());
             if (validatedCity == null) {
-                throw new Exception("No City for given Id");
+                throw new Exception(GlobalConstant.CityErrors.CITY_ID_EXISTING_ERROR);
             }
         } else {
             validatedCity = new City();

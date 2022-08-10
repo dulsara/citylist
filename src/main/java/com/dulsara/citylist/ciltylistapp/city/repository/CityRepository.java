@@ -8,17 +8,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CityRepository extends JpaRepository<City, Long> {
 
-    Optional<City> findCityByName(String name);
+    @Query(
+            value = "SELECT * FROM city c where c.name =:name and c.id != :id ",
+            nativeQuery = true)
+    Optional<City> findCityByNameExcludingId(@Param("name") String name , @Param("id") Long id);
 
     @Query(
-            value = "SELECT * FROM city c where  (:lookup is null) or (c.name  LIKE %:lookup% ) ",
-            countQuery = "SELECT count(1) FROM city c2  where  (:lookup is null) or (c2.name  LIKE %:lookup% )",
+            value = "SELECT * FROM city c where  (:lookup is null) or (LOWER( c.name )   LIKE %:lookup% ) ",
+            countQuery = "SELECT count(1) FROM city c2  where  (:lookup is null) or (LOWER( c2.name )  LIKE %:lookup% )",
             nativeQuery = true)
     Page<City> findAllWithName(@Param("lookup") String lookup, Pageable pageable);
 
